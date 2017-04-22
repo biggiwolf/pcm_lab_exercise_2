@@ -1,5 +1,4 @@
-int imageHeight;
-int imageWidth;
+float contrastParameter = 2f;
 
 PImage grayscale;
 PImage image;
@@ -10,11 +9,8 @@ void setup(){
    size(208, 278); 
   
   image = loadImage("PCMLab8.png");
-  imageHeight = image.height;
-  imageWidth = image.width;
   grayscale = arrayToImage(grayscale(image));
-  image(grayscale,0,0);
-  //threshold = threshold(image);
+  threshold = threshold(image);
   contrast = contrast(image);
 }
 
@@ -22,18 +18,15 @@ void draw(){
   //image(grayscale,0,0);
   //image(threshold,0,0);
   //image(image,0,0);
+  image(contrast,0,0);
 }
 
 int[] grayscale(PImage image){
   
-  PImage result = createImage(imageWidth, imageHeight, RGB);
-  result.copy(image,0,0,imageWidth,imageHeight,0,0,imageWidth,imageHeight);
+  PImage result = createImage(width, height, RGB);
+  result.copy(image,0,0,width,height,0,0,width,height);
   int[] resultArray = new int[height*width];
-  
-  //image(grayscale,0,0);
-  
-  //size(imageWidth, imageHeight);
-  //image(image,0,0,width,height); // fills the screen with the picture
+
   
   //grayscale
   for(int x=0; x<width; x++)
@@ -53,11 +46,7 @@ int[] grayscale(PImage image){
        resultArray[loc] = grey;
    }
   }
-  /*
-  result.updatePixels();
-  println("grayscale, 100,100 = " + result.get(100,100));
-  println("results pixsel: " + result.pixels[100 + 100*100]);
-  */
+
   return resultArray;
 }
 
@@ -70,7 +59,6 @@ PImage arrayToImage(int[] grayscaleArray){
      result.pixels[i] = color(grayscaleArray[i]); 
   }
   result.updatePixels();
-  //image(result,0,0);
   
   return result;
 }
@@ -96,7 +84,6 @@ PImage threshold(PImage image){
           //set(x,y, black);
         }
         
-        
         result.updatePixels();
         //to see grayscale disable following command
         //image(threshold,0,0);  
@@ -105,70 +92,32 @@ PImage threshold(PImage image){
   return result;
 }
 
+/*
+increases/decreases color differences
+y = c * ( x - 127 ) + 127
+increase: 
+*if it is light, it becomes lighter
+*if it is dark, it becomes darker
+decrease:
+*move all colors towards a neutral grey
+*/
 PImage contrast(PImage image){
-  //PImage result = grayscale(image);
-  PImage result = createImage(imageWidth, imageHeight, RGB);
-  //PImage grayscaleTemp = grayscale(image);
-  result.copy(image,0,0,imageWidth,imageHeight,0,0,imageWidth,imageHeight);
-  int[] resultArray = grayscale(image);
+  PImage result = createImage(width, height, RGB);
+  result.copy(image,0,0,width,height,0,0,width,height);
+
+  result.loadPixels();
   
-  //grayscale
-  /*
-  for(int x=0; x<width; x++)
-  {
-   for(int y=0; y<height; y++)
-   {
-     int loc = x + y*width;
+  for(int x = 0; x < width; x++){
+   for(int y = 0; y < height; y++){
        color c = result.get(x,y);
        float red = red(c);
        float green = green(c);
        float blue = blue(c);
-       int grey = (int)(0.3*red+0.59*green+0.11*blue);
-       //color Color =color(grey,grey,grey);
-       //grayscale.set(x,y,Color);
-       println(color(grey));
-       resultArray[loc] = grey;
+       color newColor = color(contrastParameter*(red - 127) + 127, contrastParameter*(green - 127)+127, contrastParameter*(blue-127)+127);
+       result.set(x,y,newColor);
    }
   }
-  //result.updatePixels();
-  println("bla" + (resultArray[100]));
-  //.get(100,100));
-  
-  //image(result,0,0);
-  
-  //result = grayscale(result);
-  //result.loadPixels();
-  
-  //int minVal = min(result.pixels);
-  //int maxVal = max(result.pixels);
-  //result.loadPixels();
-  /*
-  image(result,0,0);
-  int i = 0;
-    for(int x=0; x < image.width; x++)
-  {
-   for(int y=0; y < image.height; y++)
-   {   
-       color c = result.get(x,y);
-       float red = red(c);
-       float green = green(c);
-       float blue = blue(c);
-       println("red = " + red + " , green = " + green + " , blue = " + blue);
-    println(result.pixels[i++]);
-   }
-  }
-  */
-  /*
-  for(int i = 0; i < image.width * image.height - 1; i++){
-   println(thresholdTemp.pixels[i]); 
-  }
-  */
-  
-  //println(image.width);
-  //println(image.height);
-  //contrast
-  //float minVal = 257;
-  //float maxVal = -1;
+  result.updatePixels();
   
   return result;
 }
