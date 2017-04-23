@@ -7,6 +7,14 @@ PImage grayscale;
 PImage image;
 PImage threshold;
 PImage contrast;
+PImage disco;
+
+float r = -126.0f;
+int raux = 2;
+float g = 0.0f;
+int gaux = 2;
+float b = 126.0f;
+int baux = 2;
 
 void setup(){
   //this size if histogram
@@ -27,7 +35,9 @@ void draw(){
   //image(grayscale,0,0);
   //image(threshold,0,0);
   //image(image,0,0);
-  image(contrast,0,0);
+  //image(contrast,0,0);
+  disco = disco(image);
+  image(disco, 0, 0);
   
 }
 
@@ -167,4 +177,54 @@ void drawHistogram(PImage image){
   }
 
   //println("control sum = " + controlSum);
+}
+
+  
+  PImage disco(PImage image){
+  PImage result = createImage(imageWidth, imageHeight, RGB);
+  result.copy(image,0,0,imageWidth,imageHeight,0,0,imageWidth,imageHeight);
+
+  result.loadPixels();
+  
+   r += raux;
+   g += gaux;
+   b += baux;
+   if(r > 127)
+   {
+     raux = -2;
+   }
+   else if(r < -127)
+   {
+     raux = 2;
+   }
+   if(g > 127)
+   {
+     gaux = -2;
+   }
+   else if(g < -127)
+   {
+     gaux = 2;
+   }
+   if(b > 127)
+   {
+     baux = -2;
+   }
+   else if(b < -127)
+   {
+     baux = 2;
+   }
+  
+  for(int x = 0; x < image.width; x++){
+   for(int y = 0; y < image.height; y++){
+       color c = result.get(x,y);
+       float red = red(c);
+       float green = green(c);
+       float blue = blue(c);
+       color newColor = color(red + r, green + g, blue + b);
+       result.set(x,y,newColor);
+   }
+  }
+  result.updatePixels();
+  println(r + " " + g + " " + b);
+  return result;
 }
